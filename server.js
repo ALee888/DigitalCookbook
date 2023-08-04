@@ -10,17 +10,20 @@ app.use(express.json());
 // --- Routes ---
 // Sample route to test the database connection
 app.get('/', (req, res) => {
-    dbConnection.query('SELECT 1 + 1 AS result', (err, rows) => {
+    dbConnection.query('SHOW TABLES in cookbook;', (err, result) => {
         if (err) {
             console.error('Error connecting to the database:', err);
             res.status(500).json({ message: 'Internal Server Error' });
         } else {
-            const result = rows[0].result;
             res.status(200).json({ result });
         }
     });
 });
 
+/* 
+Recipes
+
+*/
 // Get Recipes
 app.get('/recipes', (req, res) => {
     const { name } = req.body;
@@ -51,19 +54,52 @@ app.post('/recipes', (req, res) => {
     }
 
     // Insert the new recipe into the database
-    const query = 'INSERT INTO recipes (name, description) VALUES (?, ?)';
-    dbConnection.query(query, [name, description], (err, result) => {
+    const recipeQuery = 'INSERT INTO recipes (name, description) VALUES (?, ?)';
+    dbConnection.query(recipeQuery, [name, description], (err, result) => {
+        if (err) {
+            console.error('Error creating the recipe:', err);
+            res.status(500).json({ message: 'Internal Server Error' });
+        } else {
+            // ID of the newly inserted recipe
+            const recipeId = result.insertId;
+            
+            // Insert ingredients into their db
+            const ingredientsQuery = 'INSERT INTO ingredients (recipe_id, name, quantity, measurement) VALUES (?, ?, ?, ?)'
+            const ingredientsData = [];
+            dbConnection.query(ingredientsQuery, ingredientsData, (err, result) => {
+                if (error) {
+                    console.error('Error inserting ingredients: ', error);
+                    res.status(500).json({ message: 'Internal Server Error'});
+                } else {
+                    res.status(201).json({ message: 'Recipe created successfully', recipeId: result.insertId });
+                }
+            });
+        }
+    });
+    // TODO: Insert into USERS_RECIPES
+});
+
+// Delete a Recipe
+app.delete('/recipes', (req, res) => {
+    const { name } = req.body;
+
+    // Insert the new recipe into the database
+    const query = 'DELETE FROM `recipes` WHERE `name`= ?';
+    dbConnection.query(query, [name], (err, result) => {
         if (err) {
             console.error('Error creating the recipe:', err);
             res.status(500).json({ message: 'Internal Server Error' });
         } else {
             // The 'result.insertId' contains the ID of the newly inserted recipe
-            res.status(201).json({ message: 'Recipe created successfully', recipeId: result.insertId });
+            res.status(201).json({ message: 'Recipe deleted successfully', recipeId: result.insertId });
         }
     });
 
-    
-});
+})
+
+/*
+
+*/
 
 // Start server
 app.listen(port, () => {
