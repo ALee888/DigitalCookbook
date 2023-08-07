@@ -12,7 +12,7 @@ CREATE TABLE Recipes(
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 -- @block 
-CREATE TABLE Recipe_ingredients(
+CREATE TABLE ingredients(
     recipe_id INT NOT NULL,
     name VARCHAR(255) NOT NULL,
     quantity VARCHAR(255),

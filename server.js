@@ -24,7 +24,7 @@ app.get('/', (req, res) => {
 Recipes
 
 */
-// Get Recipes
+// Get Recipe via name
 app.get('/recipes', (req, res) => {
     const { name } = req.body;
     
@@ -38,6 +38,7 @@ app.get('/recipes', (req, res) => {
                 console.error('Error connecting to the database:', err);
                 res.status(500).json({ message: 'Internal Server Error' });
             } else {
+                console.log(result);
                 res.status(200).json({ result });
             }
         });
@@ -64,11 +65,17 @@ app.post('/recipes', (req, res) => {
             const recipeId = result.insertId;
             
             // Insert ingredients into their db
-            const ingredientsQuery = 'INSERT INTO ingredients (recipe_id, name, quantity, measurement) VALUES (?, ?, ?, ?)'
-            const ingredientsData = [];
-            dbConnection.query(ingredientsQuery, ingredientsData, (err, result) => {
-                if (error) {
-                    console.error('Error inserting ingredients: ', error);
+            const ingredientsQuery = 'INSERT INTO ingredients (recipe_id, name, quantity, measurement) VALUES ?';
+            const ingredientsData = ingredients.map(obj => [
+                recipeId,
+                obj.name,
+                obj.quantity,
+                obj.measurement
+            ]);
+            console.log(ingredientsData)
+            dbConnection.query(ingredientsQuery, [ingredientsData], (err, result) => {
+                if (err) {
+                    console.error('Error inserting ingredients: ', err);
                     res.status(500).json({ message: 'Internal Server Error'});
                 } else {
                     res.status(201).json({ message: 'Recipe created successfully', recipeId: result.insertId });
@@ -98,8 +105,36 @@ app.delete('/recipes', (req, res) => {
 })
 
 /*
-
+Ingredients
 */
+// Get Ingredients via id
+app.get('/ingredients', (req, res) => {
+    const { id } = req.body;
+
+
+    if (id) {
+        const query = 'SELECT * FROM Ingredients WHERE `recipe_id` = ?';
+        dbConnection.query(query, [id], (err, result) => {
+            if (err) {
+                console.error('Error connecting to the database:', err);
+                res.status(500).json({ message: 'Internal Server Error' });
+            } else {
+                res.status(200).json({ result });
+            }
+        })
+    } else {
+        // No search parameters
+        const query = 'SELECT * FROM Ingredients';
+        dbConnection.query(query, (err, result) => {
+            if (err) {
+                console.error('Error connecting to the database:', err);
+                res.status(500).json({ message: 'Internal Server Error' });
+            } else {
+                res.status(200).json({ result });
+            }
+        });
+    }
+});
 
 // Start server
 app.listen(port, () => {
