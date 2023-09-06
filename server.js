@@ -1,11 +1,13 @@
 const express = require('express');
 const dbConnection = require('./db.js');
+const cors = require('cors');
 
 const app = express();
-const port = 3000
+const port = 4000
 
 // Middleware
 app.use(express.json());
+app.use(cors());
 
 // --- Routes ---
 // Sample route to test the database connection
