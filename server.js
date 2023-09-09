@@ -111,7 +111,7 @@ Ingredients
 */
 // Get Ingredients via id
 app.get('/ingredients', (req, res) => {
-    const { id } = req.body;
+    const id = req.query.id;
 
 
     if (id) {
