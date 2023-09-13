@@ -2,10 +2,11 @@
 CREATE DATABASE cookbook;
 USE cookbook;
 -- @block
-CREATE TABLE Recipes(
+CREATE TABLE recipes(
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
     description text,
+    instructions text,
     image BLOB,
     category_id INT,
     source_id INT,
@@ -23,12 +24,6 @@ CREATE TABLE ingredients(
 CREATE TABLE Recipe_ingredients(
     FOREIGN KEY (recipe_id) REFERENCES Recipes(id),
     FOREIGN KEY (ingredient_id) REFERENCES Ingredients(id)
-);
--- @block
-CREATE TABLE Ingredients(
-    id INT AUTO_INCREMENT,
-    name VARCHAR(255),
-    PRIMARY KEY (id)
 );
 -- @block
 INSERT INTO ingredients (name)
@@ -62,4 +57,6 @@ SELECT recipes.id AS recipe_id,
     FROM Users
     INNER JOIN Rooms ON Rooms.owner_id = Users.id;
 -- @block
-DROP TABLE Recipe_ingredients DROP TABLE Ingredients DROP TABLE recipes DROP TABLE Users
+use cookbook;
+drop table Recipes;
+drop table ingredients;

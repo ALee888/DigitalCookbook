@@ -26,7 +26,7 @@ app.get('/', (req, res) => {
 Recipes
 
 */
-// Get Recipe via name
+// Get Recipe
 app.get('/recipes', (req, res) => {
     const { name } = req.body;
     
@@ -49,16 +49,16 @@ app.get('/recipes', (req, res) => {
 
 // Create a new Recipe
 app.post('/recipes', (req, res) => {
-    const { name, description, ingredients } = req.body;
+    const { name, description, instructions, ingredients } = req.body;
 
     // Validate required fields
-    if (!name || !description || !ingredients) {
-        return res.status(400).json({ message: 'Please provide name, description, and ingredients' });
+    if (!name || !description || !instructions || !ingredients) {
+        return res.status(400).json({ message: 'Please provide name, description, instructions, and ingredients' });
     }
 
     // Insert the new recipe into the database
-    const recipeQuery = 'INSERT INTO recipes (name, description) VALUES (?, ?)';
-    dbConnection.query(recipeQuery, [name, description], (err, result) => {
+    const recipeQuery = 'INSERT INTO recipes (name, description, instructions) VALUES (?, ?)';
+    dbConnection.query(recipeQuery, [name, description, instructions], (err, result) => {
         if (err) {
             console.error('Error creating the recipe:', err);
             res.status(500).json({ message: 'Internal Server Error' });
