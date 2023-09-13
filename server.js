@@ -57,7 +57,7 @@ app.post('/recipes', (req, res) => {
     }
 
     // Insert the new recipe into the database
-    const recipeQuery = 'INSERT INTO recipes (name, description, instructions) VALUES (?, ?)';
+    const recipeQuery = 'INSERT INTO recipes (name, description, instructions) VALUES (?, ?, ?)';
     dbConnection.query(recipeQuery, [name, description, instructions], (err, result) => {
         if (err) {
             console.error('Error creating the recipe:', err);
