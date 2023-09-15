@@ -57,6 +57,35 @@ SELECT recipes.id AS recipe_id,
     FROM Users
     INNER JOIN Rooms ON Rooms.owner_id = Users.id;
 -- @block
+CREATE TABLE users(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    password VARCHAR(255) NOT NULL
+);
+-- @block
+CREATE TABLE Users_recipes(
+    user_id INT,
+    recipe_id INT,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (recipe_id) REFERENCES recipes(id)
+);
+-- @block
+INSERT INTO users(username, password)
+VALUES ('Alee', 'Coma'),
+    ('mia', 'Bofa2');
+-- @block
+INSERT INTO users_recipes(user_id, recipe_id)
+VALUES (1, 8);
+-- @block
+SELECT *
+FROM recipes
+WHERE id = (
+        SELECT recipe_id
+        FROM users_recipes
+        WHERE user_id = 1
+    );
+-- @block
 use cookbook;
 drop table Recipes;
 drop table ingredients;

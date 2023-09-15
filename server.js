@@ -90,11 +90,10 @@ app.post('/recipes', (req, res) => {
 
 // Delete a Recipe
 app.delete('/recipes', (req, res) => {
-    const { name } = req.body;
-
+    const id = req.query.id
     // Insert the new recipe into the database
-    const query = 'DELETE FROM `recipes` WHERE `name`= ?';
-    dbConnection.query(query, [name], (err, result) => {
+    const query = 'DELETE FROM `recipes` WHERE `id`= ?';
+    dbConnection.query(query, [id], (err, result) => {
         if (err) {
             console.error('Error creating the recipe:', err);
             res.status(500).json({ message: 'Internal Server Error' });
@@ -136,6 +135,52 @@ app.get('/ingredients', (req, res) => {
             }
         });
     }
+});
+
+/*
+USERS
+*/
+// Get User information
+app.get('/users', (req, res) => {
+    const id = req.query.id;
+
+    if (id) {
+        const query = 'SELECT * FROM USERS WHERE `id` = ?';
+        dbConnection.query(query, [id], (err, result) => {
+            if (err) {
+                console.error('Error connecting to the database:', err);
+                res.status(500).json({ message: 'Internal Server Error' });
+            } else {
+                res.status(200).json({ result });
+            }
+        })
+    } else {
+        // No search parameters
+        const query = 'SELECT * FROM USERS';
+        dbConnection.query(query, (err, result) => {
+            if (err) {
+                console.error('Error connecting to the database:', err);
+                res.status(500).json({ message: 'Internal Server Error' });
+            } else {
+                res.status(200).json({ result });
+            }
+        });
+    }
+});
+
+// Get all recipes from specific user
+app.get('/users-recipes', (req, res) => {
+    const id = req.query.id;
+
+    const query = 'SELECT recipe_id FROM USERS_RECIPES WHERE `user_id` = ?';
+    dbConnection.query(query, [id], (err, result) => {
+        if (err) {
+            console.error('Error connecting to the database:', err);
+            res.status(500).json({ message: 'Internal Server Error' });
+        } else {
+            res.status(200).json({ result });
+        }
+    })
 });
 
 // Start server
