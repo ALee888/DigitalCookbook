@@ -65,8 +65,8 @@ CREATE TABLE users(
 );
 -- @block
 CREATE TABLE Users_recipes(
-    user_id INT,
-    recipe_id INT,
+    user_id INT NOT NULL,
+    recipe_id INT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (recipe_id) REFERENCES recipes(id)
 );

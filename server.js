@@ -172,7 +172,15 @@ app.get('/users', (req, res) => {
 app.get('/users-recipes', (req, res) => {
     const id = req.query.id;
 
-    const query = 'SELECT recipe_id FROM USERS_RECIPES WHERE `user_id` = ?';
+    const query = `
+        SELECT *
+        FROM recipes
+        WHERE id = (
+                SELECT recipe_id
+                FROM users_recipes
+                WHERE user_id = ?
+            );
+    `;
     dbConnection.query(query, [id], (err, result) => {
         if (err) {
             console.error('Error connecting to the database:', err);
@@ -181,6 +189,27 @@ app.get('/users-recipes', (req, res) => {
             res.status(200).json({ result });
         }
     })
+});
+
+// Link a user and recipe
+app.post('/users-recipes', (req, res) => {
+    const { userId, recipeId } = req.body;
+
+    // Validate required fields
+    if (!userId || !recipeId) {
+        return res.status(400).json({ message: 'Please provide the id of a user and recipe' });
+    }
+
+    // Insert the new recipe into the database
+    const recipeQuery = `INSERT INTO users_recipes(user_id, recipe_id) VALUES (?, ?);`;
+    dbConnection.query(recipeQuery, [userId, recipeId], (err, result) => {
+        if (err) {
+            console.error('Error creating the recipe:', err);
+            res.status(500).json({ message: 'Internal Server Error' });
+        } else {
+            res.status(201).json({ message: 'Recipe saved successfully' });
+        }
+    });
 });
 
 // Start server
