@@ -172,15 +172,7 @@ app.get('/users', (req, res) => {
 app.get('/users-recipes', (req, res) => {
     const id = req.query.id;
 
-    const query = `
-        SELECT *
-        FROM recipes
-        WHERE id = (
-                SELECT recipe_id
-                FROM users_recipes
-                WHERE user_id = ?
-            );
-    `;
+    const query = "SELECT * FROM recipes WHERE id = (SELECT recipe_id FROM users_recipes WHERE user_id = ?)";
     dbConnection.query(query, [id], (err, result) => {
         if (err) {
             console.error('Error connecting to the database:', err);

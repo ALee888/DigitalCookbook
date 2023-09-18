@@ -64,9 +64,10 @@ CREATE TABLE users(
     password VARCHAR(255) NOT NULL
 );
 -- @block
-CREATE TABLE Users_recipes(
+CREATE TABLE users_recipes(
     user_id INT NOT NULL,
     recipe_id INT NOT NULL,
+    PRIMARY KEY (user_id, recipe_id),
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (recipe_id) REFERENCES recipes(id)
 );
