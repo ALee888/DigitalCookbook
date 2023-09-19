@@ -59,8 +59,8 @@ SELECT recipes.id AS recipe_id,
 -- @block
 CREATE TABLE users(
     id INT PRIMARY KEY AUTO_INCREMENT,
-    username VARCHAR(255) NOT NULL,
-    email VARCHAR(255),
+    username VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
     password VARCHAR(255) NOT NULL
 );
 -- @block
@@ -72,9 +72,9 @@ CREATE TABLE users_recipes(
     FOREIGN KEY (recipe_id) REFERENCES recipes(id)
 );
 -- @block
-INSERT INTO users(username, password)
-VALUES ('Alee', 'Coma'),
-    ('mia', 'Bofa2');
+INSERT INTO users(username, email, password)
+VALUES ('Alee', 'somthing@gmail', 'Coma'),
+    ('mia', 'mia@gmail', 'Bofa2');
 -- @block
 INSERT INTO users_recipes(user_id, recipe_id)
 VALUES (1, 8);
@@ -90,3 +90,8 @@ WHERE id = (
 use cookbook;
 drop table Recipes;
 drop table ingredients;
+-- @block
+-- CLEAR USER DATABASE
+use cookbook;
+drop table users_recipes;
+drop table users;

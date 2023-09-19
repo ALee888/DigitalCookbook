@@ -204,6 +204,13 @@ app.post('/users-recipes', (req, res) => {
     });
 });
 
+// Login
+app.post("/register", async (req, res) => {
+    const { email, password } = req.body;
+
+    const userWithEmail = await User 
+})
+
 // Start server
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
