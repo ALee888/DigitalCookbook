@@ -1,7 +1,11 @@
 const express = require('express');
 const dbConnection = require('./db.js');
 const cors = require('cors');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const { getUserByEmail, validatePassword, hashPassword } = require('./userController.js');
 
+// const authController = require('./controllers/auth')
 const app = express();
 const port = 4000
 
@@ -167,7 +171,24 @@ app.get('/users', (req, res) => {
         });
     }
 });
+// Delete a User
+app.delete('/users', (req, res) => {
+    const id = req.query.id
+    // TODO: Authenitcate User
 
+    // Insert the new recipe into the database
+    const query = 'DELETE FROM users WHERE id= ?';
+    dbConnection.query(query, [id], (err, result) => {
+        if (err) {
+            console.error('Error creating the recipe:', err);
+            res.status(500).json({ message: 'Internal Server Error' });
+        } else {
+            // The 'result.insertId' contains the ID of the newly inserted recipe
+            res.status(201).json({ message: 'Recipe deleted successfully', recipeId: result.insertId });
+        }
+    });
+
+})
 // Get all recipes from specific user
 app.get('/users-recipes', (req, res) => {
     const id = req.query.id;
@@ -199,15 +220,82 @@ app.post('/users-recipes', (req, res) => {
             console.error('Error creating the recipe:', err);
             res.status(500).json({ message: 'Internal Server Error' });
         } else {
-            res.status(201).json({ message: 'Recipe saved successfully' });
+            res.status(201).json({ message: 'Recipe saved successfully: ' + result });
         }
     });
 });
 
 // Login
-app.post("/register", async (req, res) => {
+/*
+app.post('/login', async (req, res) => {
     const { email, password } = req.body;
-})
+    try {
+        const user = await getUserByEmail(email);
+
+        if (!user || !validatePassword(password, user.password)) {
+            return res.status(401).json({ message: 'Invalid credentials'});
+        }
+
+        const token = jwt.sign({ userId: user.id }, 'your-secret-key', { expiresIn: '1h' });
+        res.json({ token });
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+*/
+app.post('/register', async (req, res) => {
+    const { username, email, password } = req.body;
+    // Check if the user already exists
+    const userExistsQuery = 'SELECT COUNT(*) AS count FROM users WHERE email = ?';
+    dbConnection.query(userExistsQuery, [email], (err, result) => {
+        if (err) {
+            console.error('Error checking if user exists', err);
+            return res.status(500).json({ message: 'Internal Server Error' });
+        } else {
+            const userExists = result[0].count > 0;
+            if (userExists) {
+                return res.status(400).json({ message: 'User already exists' });
+            }
+        }
+    });
+    
+    // Hash the password
+    //const hashedPassword = hashPassword(password);
+    var hashedPass = password;
+    try {
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        hashedPass = hashedPassword
+    } catch (error) {
+        throw new Error('Password hashing failed');
+    }
+    
+    // Insert the user into the database
+    const createUserQuery = 'INSERT INTO users (username, email, password) VALUES (?, ?, ?)';
+    dbConnection.query(createUserQuery, [username, email, hashedPass], (err, result) => {
+        if (err) {
+            console.error('Error checking if user exists', err);
+            return res.status(500).json({ message: 'Internal Server Error' });
+        } else {
+            console.log('User registered successfully');
+        }
+    });
+    
+    // Get the newly created user
+    const getUserQuery = 'SELECT * FROM users WHERE email = ?';
+    dbConnection.query(getUserQuery, [email], (err, result) => {
+        if (err) {
+            console.error('Error getting newly created user', err);
+            return res.status(500).json({ message: 'Internal Server Error' });
+        } else {
+            const user = result[0];
+            // Create JWT token
+            const token = jwt.sign({ userId: user.id }, 'your-secret-key', { expiresIn: '1h' });
+            return res.json({ token });    
+        }
+    });
+});
 
 // Start server
 app.listen(port, () => {
