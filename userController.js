@@ -3,9 +3,15 @@ const dbConnection = require('./db'); // Implement this to connect to your datab
 const bcrypt = require('bcrypt');
 
 const getUserByEmail = async (email) => {
-  const query = 'SELECT * FROM users WHERE email = $1';
-  const result = await pool.query(query, [email]);
-  return result.rows[0];
+    const query = 'SELECT * FROM users WHERE email = ?';
+    dbConnection.query(query, [email], (err, result) => {
+        if (err) {
+            console.error('Error getting user via email', err);
+            return res.status(500).json({message: 'Internal Server Error'});
+        } else {
+            return result[0];
+        }
+    });
 };
 
 const validatePassword = async (password, hashedPassword) => {
