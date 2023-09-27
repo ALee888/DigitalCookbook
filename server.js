@@ -236,10 +236,20 @@ app.post('/login', async (req, res) => {
             return res.status(500).json({message: 'Internal Server Error'});
         } else {
             const user = result[0];
+            
+            console.log("user: ");
             console.log(user);
+            const match = bcrypt.compare(password, user.password);   
+            console.log(match);
+            if (!user || !match) {
+                return res.status(401).json({ message: 'Invalid credentials'});
+            }
         }
     });
+
+    /*
     try {
+        console.log("USER: "); 
         console.log(user); 
         const match = await bcrypt.compare(password, user.password);   
         console.log(match);
@@ -251,7 +261,7 @@ app.post('/login', async (req, res) => {
     }
     
     res.status(400).json({message: 'made it!'})
-    /*
+    
         const token = jwt.sign({ userId: user.id }, 'your-secret-key', { expiresIn: '1h' });
         res.json({ token });
         

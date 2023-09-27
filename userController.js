@@ -1,8 +1,8 @@
 // userController.js
 const dbConnection = require('./db'); // Implement this to connect to your database
 const bcrypt = require('bcrypt');
-
-const getUserByEmail = async (email) => {
+dbConnection.connect();
+const getUserByEmail1 = async (email) => {
     const query = 'SELECT * FROM users WHERE email = ?';
     dbConnection.query(query, [email], (err, result) => {
         if (err) {
@@ -12,7 +12,25 @@ const getUserByEmail = async (email) => {
             return result[0];
         }
     });
+    dbConnection
 };
+const getUserByEmail = async (email) => {
+    try {
+      const query = 'SELECT * FROM users WHERE email = ?';
+      const [rows] = await dbConnection.query(query, [email]);
+      
+      if (rows.length === 0) {
+        console.log('User not found for email:', email);
+        return null;  // No user found
+      }
+  
+      return rows[0];
+    } catch (error) {
+      console.error('Error in getUserByEmail:', error);
+      throw new Error('Database error');
+    }
+  };
+  
 
 const validatePassword = async (password, hashedPassword) => {
     // Implement password validation logic, e.g., using bcrypt
