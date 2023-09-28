@@ -227,49 +227,30 @@ app.post('/users-recipes', (req, res) => {
 
 // Verify user credentials
 app.post('/login', async (req, res) => {
-    const { email, password } = req.body;
-    //const user = await getUserByEmail(email);
-    const query = 'SELECT * FROM users WHERE email = ?';
-    dbConnection.query(query, [email], (err, result) => {
-        if (err) {
-            console.error('Error getting user via email', err);
-            return res.status(500).json({message: 'Internal Server Error'});
-        } else {
-            const user = result[0];
-            
-            console.log("user: ");
-            console.log(user);
-            const match = bcrypt.compare(password, user.password);   
+    try {
+
+        const { email, password } = req.body;
+        const user = await getUserByEmail(email);
+        
+        const query = 'SELECT * FROM users WHERE email = ?';
+        
+        try {
+            const match = await bcrypt.compare(password, user.password);   
             console.log(match);
             if (!user || !match) {
                 return res.status(401).json({ message: 'Invalid credentials'});
-            }
+            }   
+        } catch (error) {
+            throw new Error('Password validation failed');
         }
-    });
-
-    /*
-    try {
-        console.log("USER: "); 
-        console.log(user); 
-        const match = await bcrypt.compare(password, user.password);   
-        console.log(match);
-        if (!user || !match) {
-            return res.status(401).json({ message: 'Invalid credentials'});
-        }   
-    } catch (error) {
-        throw new Error('Password validation failed');
-    }
-    
-    res.status(400).json({message: 'made it!'})
-    
+            
         const token = jwt.sign({ userId: user.id }, 'your-secret-key', { expiresIn: '1h' });
         res.json({ token });
-        
+            
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ message: 'Server error' });
     }
-    */
 });
 
 // Create a new user

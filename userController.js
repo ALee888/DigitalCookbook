@@ -1,45 +1,24 @@
 // userController.js
 const dbConnection = require('./db'); // Implement this to connect to your database
 const bcrypt = require('bcrypt');
-dbConnection.connect();
-const getUserByEmail1 = async (email) => {
-    const query = 'SELECT * FROM users WHERE email = ?';
-    dbConnection.query(query, [email], (err, result) => {
-        if (err) {
-            console.error('Error getting user via email', err);
-            return res.status(500).json({message: 'Internal Server Error'});
-        } else {
-            return result[0];
-        }
-    });
-    dbConnection
-};
+const util = require('util');
+
+
 const getUserByEmail = async (email) => {
     try {
-      const query = 'SELECT * FROM users WHERE email = ?';
-      const [rows] = await dbConnection.query(query, [email]);
-      
-      if (rows.length === 0) {
-        console.log('User not found for email:', email);
-        return null;  // No user found
-      }
-  
-      return rows[0];
-    } catch (error) {
-      console.error('Error in getUserByEmail:', error);
-      throw new Error('Database error');
-    }
-  };
-  
+        const sqlQuery = 'SELECT * FROM users WHERE email = ?';
+        const query = util.promisify(dbConnection.query).bind(dbConnection);
+        const result = await query(sqlQuery, [email]);
+        
+        if (result.length === 0) {
+            console.log('User not found for email: ', email);
+            return null;
+        }
 
-const validatePassword = async (password, hashedPassword) => {
-    // Implement password validation logic, e.g., using bcrypt
-    // Compare the hashedPassword with the provided password
-    try {
-        const match = await bcrypt.compare(password, hashedPassword);
-        return match;
+        return result[0]
     } catch (error) {
-        throw new Error('Password validation failed');
+        console.error('Error in getUserByEmail: ', error);
+        throw new Error('Database error');
     }
 };
 
