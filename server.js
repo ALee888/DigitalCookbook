@@ -235,8 +235,7 @@ app.post('/login', async (req, res) => {
         const query = 'SELECT * FROM users WHERE email = ?';
         
         try {
-            const match = await bcrypt.compare(password, user.password);   
-            console.log(match);
+            const match = await bcrypt.compare(password, user.password);
             if (!user || !match) {
                 return res.status(401).json({ message: 'Invalid credentials'});
             }   

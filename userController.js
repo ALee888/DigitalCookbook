@@ -32,4 +32,4 @@ const hashPassword = async (password) => {
     }
 };
 
-module.exports = { getUserByEmail, validatePassword, hashPassword };
+module.exports = { getUserByEmail, hashPassword };
