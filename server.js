@@ -193,13 +193,13 @@ app.delete('/users', (req, res) => {
 app.get('/users-recipes', (req, res) => {
     const id = req.query.id;
 
-    const query = "SELECT * FROM recipes WHERE id = (SELECT recipe_id FROM users_recipes WHERE user_id = ?)";
+    const query = "SELECT * FROM recipes WHERE id in (SELECT recipe_id FROM users_recipes WHERE user_id = ?)";
     dbConnection.query(query, [id], (err, result) => {
         if (err) {
             console.error('Error connecting to the database:', err);
             res.status(500).json({ message: 'Internal Server Error' });
         } else {
-            res.status(200).json({ result });
+            res.status(200).json({result});
         }
     })
 });
