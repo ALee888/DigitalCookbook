@@ -232,8 +232,6 @@ app.post('/login', async (req, res) => {
         const { email, password } = req.body;
         const user = await getUserByEmail(email);
         
-        const query = 'SELECT * FROM users WHERE email = ?';
-        
         try {
             const match = await bcrypt.compare(password, user.password);
             if (!user || !match) {
@@ -244,7 +242,7 @@ app.post('/login', async (req, res) => {
         }
             
         const token = jwt.sign({ userId: user.id }, 'your-secret-key', { expiresIn: '1h' });
-        res.json({ token });
+        res.json({ 'token': token, 'id': user.id});
             
     } catch (error) {
         console.error('Login error:', error);
@@ -255,6 +253,7 @@ app.post('/login', async (req, res) => {
 // Create a new user
 app.post('/register', async (req, res) => {
     const { username, email, password } = req.body;
+    
     // Check if the user already exists
     const userExistsQuery = 'SELECT COUNT(*) AS count FROM users WHERE email = ?';
     dbConnection.query(userExistsQuery, [email], (err, result) => {
@@ -270,7 +269,6 @@ app.post('/register', async (req, res) => {
     });
     
     // Hash the password
-    //const hashedPassword = hashPassword(password);
     var hashedPass = password;
     try {
         const saltRounds = 10;

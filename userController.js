@@ -14,7 +14,6 @@ const getUserByEmail = async (email) => {
             console.log('User not found for email: ', email);
             return null;
         }
-
         return result[0]
     } catch (error) {
         console.error('Error in getUserByEmail: ', error);
