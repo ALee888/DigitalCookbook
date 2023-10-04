@@ -225,6 +225,26 @@ app.post('/users-recipes', (req, res) => {
     });
 });
 
+// Delete a User
+app.delete('/users-recipes', (req, res) => {
+    const user_id = req.query.user_id
+    const recipe_id = req.query.recipe_id
+    // TODO: Authenitcate User
+
+    // Insert the new recipe into the database
+    console.log(user_id);
+    const query = `DELETE FROM users_recipes WHERE user_id = ? AND recipe_id = ?;`;
+    dbConnection.query(query, [user_id, recipe_id], (err, result) => {
+        if (err) {
+            console.error('Error creating the recipe:', err);
+            res.status(500).json({ message: 'Internal Server Error' });
+        } else {
+            res.status(201).json({ message: 'User-Recipes deleted successfully' });
+        }
+    });
+
+})
+
 // Verify user credentials
 app.post('/login', async (req, res) => {
     try {
