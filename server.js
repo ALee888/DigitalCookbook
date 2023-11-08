@@ -53,23 +53,24 @@ app.get('/recipes', (req, res) => {
 
 // Create a new Recipe
 app.post('/recipes', (req, res) => {
-    const { name, description, instructions, ingredients } = req.body;
+    const { name, description, instructions, ingredients, created_by } = req.body;
 
     // Validate required fields
-    if (!name || !description || !instructions || !ingredients) {
-        return res.status(400).json({ message: 'Please provide name, description, instructions, and ingredients' });
+    if (!name || !description || !instructions || !ingredients || !created_by) {
+        return res.status(400).json({ message: 'Please provide name, description, instructions, ingredients, and created_by' });
     }
 
     // Insert the new recipe into the database
-    const recipeQuery = 'INSERT INTO recipes (name, description, instructions) VALUES (?, ?, ?)';
-    dbConnection.query(recipeQuery, [name, description, instructions], (err, result) => {
+    const recipeQuery = 'INSERT INTO recipes (name, description, instructions, created_by) VALUES (?, ?, ?, ?)';
+    dbConnection.query(recipeQuery, [name, description, instructions, created_by], (err, result) => {
         if (err) {
             console.error('Error creating the recipe:', err);
             res.status(500).json({ message: 'Internal Server Error' });
         } else {
             // ID of the newly inserted recipe
+            console.log("RESULT: ", result)
             const recipeId = result.insertId;
-            
+            console.log("recipeId: ", recipeId)
             // Insert ingredients into their db
             const ingredientsQuery = 'INSERT INTO ingredients (recipe_id, name, quantity, measurement) VALUES ?';
             const ingredientsData = ingredients.map(obj => [
@@ -84,7 +85,7 @@ app.post('/recipes', (req, res) => {
                     console.error('Error inserting ingredients: ', err);
                     res.status(500).json({ message: 'Internal Server Error'});
                 } else {
-                    res.status(201).json({ message: 'Recipe created successfully', recipeId: result.insertId });
+                    res.status(201).json({ message: 'Recipe created successfully', recipeId: recipeId });
                 }
             });
         }
@@ -102,11 +103,10 @@ app.delete('/recipes', (req, res) => {
             console.error('Error creating the recipe:', err);
             res.status(500).json({ message: 'Internal Server Error' });
         } else {
-            // The 'result.insertId' contains the ID of the newly inserted recipe
-            res.status(201).json({ message: 'Recipe deleted successfully', recipeId: result.insertId });
+            console.log(result);
+            res.status(201).json({ message: 'Recipe deleted successfully' });
         }
     });
-
 })
 
 /*

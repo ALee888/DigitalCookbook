@@ -9,7 +9,7 @@ CREATE TABLE recipes(
     instructions text,
     image BLOB,
     category_id INT,
-    source_id INT,
+    created_by INT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 -- @block 
